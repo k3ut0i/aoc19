@@ -1,0 +1,13 @@
+* Advent Of Code - 2019
+I'm trying to solve these problem as a practice for prolog programming.
+** Day1
+#+BEGIN_SRC prolog :exports results
+  :- consult("src/day1.pl").
+  :- main("inputs/day1", X), print(X).
+#+END_SRC
+
+#+RESULTS:
+: 4943969
+
+
+
