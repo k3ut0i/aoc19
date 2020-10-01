@@ -1,13 +1,22 @@
 * Advent Of Code - 2019
-I'm trying to solve these problem as a practice for prolog programming.
+I'm trying to solve these problems as a practice for prolog programming.
 ** Day1
-#+BEGIN_SRC prolog :exports results
+#+BEGIN_SRC prolog :exports both
   :- consult("src/day1.pl").
   :- main("inputs/day1", X), print(X).
 #+END_SRC
 
 #+RESULTS:
 : 4943969
+** Day2
+#+BEGIN_SRC prolog :exports both
+  :- consult("src/day2.pl").
+  %% Part1 1202 program
+  :- output("inputs/day2", 12, 2, X), print(X), nl.
+  %% Part2 finding input program
+  :- find_inputs("inputs/day2", 19690720, N, V), Ans is N*100 + V, print(Ans), nl.
+#+END_SRC
 
-
-
+#+RESULTS:
+| 3716293 |
+|    6429 |
