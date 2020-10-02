@@ -20,3 +20,12 @@ I'm trying to solve these problems as a practice for prolog programming.
 #+RESULTS:
 | 3716293 |
 |    6429 |
+** Day3
+Wasted a bit of time trying out a brute force solution. Finally tried out just intersecting lines of two wires rather than each point. A language with arrays would have lead to a more straight forward simulation. Prolog forced me to get more creative.
+#+BEGIN_SRC prolog :exports both
+  :- consult("src/day3.pl").
+  :- main("inputs/day3", X, Y), writef('Part1: (%w), Part2: %t\n', [X, Y]).
+#+END_SRC
+
+#+RESULTS:
+| Part1: (860 | 0) | Part2: 9238 |
