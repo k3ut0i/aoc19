@@ -49,4 +49,12 @@ Some bugs were ironed out during part2 debugging. Sometimes I am confused when o
 #+RESULTS:
 | 13787043 |
 |  3892695 |
+** Day6
+I drew the graph using xdot just to [[file:resources/day6.png][visualize]] how complicated the data was.
+#+BEGIN_SRC prolog :exports both
+  :- consult("src/day6.pl").
+  :- F = "inputs/day6", part1(F, A1), part2(F, A2), format("~a  ~a", [A1, A2]).
+#+END_SRC
 
+#+RESULTS:
+: 162816  304
