@@ -39,14 +39,14 @@ This constraint problem was pretty simple for Prolog to search through. Took jus
 #+RESULTS:
 | Part1 : 2779 | Part2 : 1972 |
 ** Day5
-*** Part1
-Took awhile to wrestle everything into place. The output codes for all the tests are supposed to comeback zero, but my first one returns 3. The answer for diagnostics code is correct. Where is the bug?
+Some bugs were ironed out during part2 debugging. Sometimes I am confused when ordering the conjunctive clauses which results in un-instantiated errors.
 #+BEGIN_SRC prolog :exports both
   :- consult("src/day5.pl").
-  :- part1("inputs/day5", X), print(X),nl.
+  :- test_diagnostic("inputs/day5", 1, Os), last(Os, X), print(X),nl.
+  :- test_diagnostic("inputs/day5", 5, [X]), print(X),nl.
 #+END_SRC
 
 #+RESULTS:
-| [3 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 13787043] |
-*** Part2
-Now we have jumps and comparison operators making this a full-fledged computer.
+| 13787043 |
+|  3892695 |
+
