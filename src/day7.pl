@@ -1,10 +1,5 @@
 %% -*- mode : prolog -*-
-:- consult("day5.pl").
-
-get_program(File, Prog) :-
-    open(File, read, S), read_line_to_string(S, ProgStr),
-    close(S), atomics_to_string(ProgAtoms, ",", ProgStr),
-    maplist(atom_number, ProgAtoms, Prog).
+:- use_module(intcode).
 
 set_phase(P, InProg, OutProg, NewIP) :-
     step_program(0, InProg, OutProg, NewIP, P, _, _).

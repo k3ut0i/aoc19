@@ -82,13 +82,16 @@ This was an easy problem. I only stumbled a bit to define the zip function to la
 #+BEGIN_SRC prolog :exports both
   :- consult("src/day8.pl").
   :- part1("inputs/day8", (25,6), X), print(X),nl.
-  :- Fname="resources/day8.pbm", part2((25,6), "inputs/day8", Fname), print(Fname), nl.
+  :- Fname="resources/day8.pbm", part2((25,6), "inputs/day8", Fname),
+     format("[[file:~s]]~n", Fname).
 #+END_SRC
 
 #+RESULTS:
-|               2562 |
-| resources/day8.pbm |
+|                    2562 |
+| [[file:resources/day8.pbm]] |
 
 *** TODO Infinite solutions bug
 There is one bug in my solution: prolog gives me the same solution infinite times. So there must be a closed loop in one of my definitions.
 
+** Day 9
+I'm going to rewrite the intcode computer as a seperate module. I should have done it on the day7 problem itself but was too lazy to bother learning modules. Now it seems this will be the common base for future problems too.
