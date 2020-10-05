@@ -77,3 +77,18 @@ Part 2 required some effort to sync IO of all instances of the programs. Most of
 
 #+RESULTS:
 : 15432220
+** Day 8
+This was an easy problem. I only stumbled a bit to define the zip function to layer the image. 
+#+BEGIN_SRC prolog :exports both
+  :- consult("src/day8.pl").
+  :- part1("inputs/day8", (25,6), X), print(X),nl.
+  :- Fname="resources/day8.pbm", part2((25,6), "inputs/day8", Fname), print(Fname), nl.
+#+END_SRC
+
+#+RESULTS:
+|               2562 |
+| resources/day8.pbm |
+
+*** TODO Infinite solutions bug
+There is one bug in my solution: prolog gives me the same solution infinite times. So there must be a closed loop in one of my definitions.
+
