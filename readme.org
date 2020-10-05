@@ -49,6 +49,8 @@ Some bugs were ironed out during part2 debugging. Sometimes I am confused when o
 #+RESULTS:
 | 13787043 |
 |  3892695 |
+
+
 ** Day6
 I drew the graph using xdot just to [[file:resources/day6.png][visualize]] how complicated the data was.
 #+BEGIN_SRC prolog :exports both
@@ -58,3 +60,20 @@ I drew the graph using xdot just to [[file:resources/day6.png][visualize]] how c
 
 #+RESULTS:
 : 162816  304
+** Day7
+Part 1 was done without changing any code from day5 problem. Part 2 requires some changes in IO code of the program execution. I need introduce a waiting-on-input status in the run_program_ function.
+#+BEGIN_SRC prolog :exports both
+  :- consult("src/day7.pl").
+  :- part7_1("inputs/day7", X), print(X), nl.
+#+END_SRC
+
+#+RESULTS:
+: 929800
+Part 2 required some effort to sync IO of all instances of the programs. Most of my time was wasted at a bug in step_program halt case, where I forgot to set the new instruction pointer to the old one and thus missed the infinite loop caused by mis-ordering the halt, output cases in run_all_amplifiers.
+#+BEGIN_SRC prolog :exports both
+  :- consult("src/day7.pl").
+  :- part7_2("inputs/day7", X), print(X), nl.
+#+END_SRC
+
+#+RESULTS:
+: 15432220

@@ -36,13 +36,13 @@ handle_jumps(Op, [M1, M2, _], [I1, I2], InProg, IP, NewIP) :-
 
 step_program(IP, InProg, OutProg, NewIP, Input, Output, Status) :-
     nth0(IP, InProg, OpRaw), parse_opcode(OpRaw, Op),
-    (Op = (halt), InProg = OutProg, Status = s
+    (Op = (halt), InProg = OutProg, Status = s, NewIP = IP
     ;
     Op = (return, [M | _]), plus(IP, 2, NewIP), plus(IP, 1, ArgPos),
     InProg = OutProg, nth0(ArgPos, InProg, Arg),
     (M = p -> nth0(Arg, InProg, Output) ; Output = Arg), Status = o
     ;
-    Op = (store, _), plus(IP, 2, NewIP), plus(IP, 1, ArgPos), Status = c,
+    Op = (store, _), plus(IP, 2, NewIP), plus(IP, 1, ArgPos), Status = i,
     nth0(ArgPos, InProg, Idx), storeElem(Idx, Input, InProg, OutProg)
     ;
     Op = (O, M), (O = jit ; O = jif), plus(IP, 1, Arg1P), plus(IP, 2, Arg2P),
@@ -62,7 +62,7 @@ run_program_(IP, InProg, OutProg, Input, Outputs) :-
     (S = s -> OutProg = OP1, Outputs = []
     ;
     run_program_(NIP1, OP1, OutProg, Input, RO),
-    (S = c -> Outputs = RO ; Outputs = [O1 | RO])).
+    ((S = c; S = i) -> Outputs = RO ; Outputs = [O1 | RO])).
 test_diagnostic(File, ID, Diag_Code) :-
     open(File, read, Stream),
     read_line_to_string(Stream, ProgStr),
