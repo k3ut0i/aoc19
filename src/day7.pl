@@ -2,7 +2,7 @@
 :- use_module(intcode).
 
 set_phase(P, InProg, OutProg, NewIP) :-
-    step_program(0, InProg, OutProg, NewIP, P, _, _).
+    step_program_no_base(0, InProg, OutProg, NewIP, P, _, _).
 
 run_amplifier(I, O, [P1, P2, P3, P4, P5], InitProg) :-
     set_phase(P1, InitProg, OP1, IP1),
@@ -10,11 +10,11 @@ run_amplifier(I, O, [P1, P2, P3, P4, P5], InitProg) :-
     set_phase(P3, InitProg, OP3, IP3),
     set_phase(P4, InitProg, OP4, IP4),
     set_phase(P5, InitProg, OP5, IP5),
-    run_program_(IP1, OP1, _, I, [O1]),
-    run_program_(IP2, OP2, _, O1, [O2]),
-    run_program_(IP3, OP3, _, O2, [O3]),
-    run_program_(IP4, OP4, _, O3, [O4]),
-    run_program_(IP5, OP5, _, O4, [O]).
+    run_program_no_base(IP1, OP1, _, I, [O1]),
+    run_program_no_base(IP2, OP2, _, O1, [O2]),
+    run_program_no_base(IP3, OP3, _, O2, [O3]),
+    run_program_no_base(IP4, OP4, _, O3, [O4]),
+    run_program_no_base(IP5, OP5, _, O4, [O]).
 
 
 phases(P1, P2, P3, P4, P5) :-
@@ -29,7 +29,7 @@ part7_1(File, Ans) :-
     get_program(File, Prog), highest_signal(Prog, Ans).
 
 run_prog_in_sync(IP, NewIP, InProg, OutProg, Input, Output, Status) :-
-    step_program(IP, InProg, OP1, NIP1, Input, Output, S),
+    step_program_no_base(IP, InProg, OP1, NIP1, Input, Output, S),
     (S = s, OutProg = OP1, Status = halted, NewIP = NIP1
     ; %Run it until we encounter an output, halted or consumed the input.
     S = c, run_prog_in_sync(NIP1, NewIP, OP1, OutProg, Input, Output, Status)

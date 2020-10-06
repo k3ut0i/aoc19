@@ -2,7 +2,7 @@
 :- use_module(intcode).
 
 run_program(InProg, OutProg, Input, Outputs) :-
-    run_program_(0, InProg, OutProg, Input, Outputs).
+    run_program_no_base(0, InProg, OutProg, Input, Outputs).
 
 test_diagnostic(File, ID, Diag_Code) :-
     get_program(File, InitState),

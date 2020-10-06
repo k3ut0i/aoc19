@@ -47,8 +47,6 @@ Some bugs were ironed out during part2 debugging. Sometimes I am confused when o
 #+END_SRC
 
 #+RESULTS:
-| 13787043 |
-|  3892695 |
 
 
 ** Day6
@@ -77,6 +75,8 @@ Part 2 required some effort to sync IO of all instances of the programs. Most of
 
 #+RESULTS:
 : 15432220
+
+
 ** Day 8
 This was an easy problem. I only stumbled a bit to define the zip function to layer the image. 
 #+BEGIN_SRC prolog :exports both
@@ -95,3 +95,14 @@ There is one bug in my solution: prolog gives me the same solution infinite time
 
 ** Day 9
 I'm going to rewrite the intcode computer as a seperate module. I should have done it on the day7 problem itself but was too lazy to bother learning modules. Now it seems this will be the common base for future problems too.
+*** Part 1
+After wrangling quite a bit of quick and dirty code, the module intcode is ready and functional. I tested it with day5 and day7 problems before trying out day9 and solved quite a few bugs along the way.
+#+BEGIN_SRC prolog :exports both
+  :- consult("src/day9.pl").
+  :- part9_1("inputs/day9", [A]), print(A), nl.
+#+END_SRC
+
+#+RESULTS:
+: 2351176124
+*** Part 2
+The program is looping a lot, likely doing some inefficient computation. I need to figure out what it is trying to do and then compute it efficiently for my answer. For now it seems to be looping around 920-960 addresses after 20-30 steps. Instead of getting dirty and parsing the code manually, I am taking the long way home by writing a parser that will make things more clear. Let us see how this goes.
