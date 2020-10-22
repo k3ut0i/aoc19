@@ -25,21 +25,27 @@ parse_opcode(Code, Op) :-
     T = [M3, M2, M1, O2, O1], O2N is O2 - 48, O1N is O1 - 48, O is O2N*10 + O1N,
     maplist(explicit_modes, [M1, M2, M3], M),
     (O = 1, Op = (plus, M); O = 2, Op = (mult, M); O = 3, Op = (store, M);
-     O = 4, Op = (return, M); O = 99, Op = (halt); O = 5, Op = (jit, M);
+     O = 4, Op = (return, M); O = 99, Op = (halt, M); O = 5, Op = (jit, M);
      O = 6, Op = (jif, M); O = 7, Op = (lt, M); O = 8, Op = (eq, M);
      O = 9, Op = (base, M)).
 
 instr_len(I, L) :-
     [(plus, 4), (mult, 4), (store, 2), (return, 2), (halt, 1), (base, 2),
-     (jump_if_true, 3), (jump_if_false, 3), (less_than, 4), (equals, 4)] = IL,
+     (jit, 3), (jif, 3), (lt, 4), (eq, 4)] = IL,
     member((I, L), IL).
 split(N, L1, L2, L3) :-
     length(L2, N), append(L2, L3, L1).
-parse_program(Codes, Insts) :-
-    Codes = [], Insts = [];
+parse_program_([], Insts, Acc) :- reverse(Insts, Acc).
+parse_program_([0 | _], Insts, Acc) :- reverse(Insts, Acc). % Stop if you hit memory
+parse_program_(Codes, Insts, Acc) :-
     Codes = [Code | _], parse_opcode(Code, (Op, Ms)), instr_len(Op, L),
-    split(L, Codes, [_ | Params], Rest), parse_program(Rest, InstsRest),
-    Insts = [(Op, Params, Ms) | InstsRest].
+    split(L, Codes, [_ | Params], Rest),
+    (Op = halt -> reverse(Insts, [(Op, Params, Ms) | Acc]);
+     parse_program_(Rest, Insts, [(Op, Params, Ms) | Acc])).
+    
+
+parse_program(Codes, Insts) :-
+    parse_program_(Codes, Insts, []).
     
 pad_last(N, Elem, List1, List2) :- length(List1, M), plus(M, Extra, N),
 				   pad_last_(Extra, Elem, List1, List2, []).
@@ -79,7 +85,7 @@ handle_jumps((Op, [M1, M2, _]), IP, NewIP, MEMIN, MEMOUT, Base) :-
 
 step_program(IP, MEMIN, MEMOUT, NewIP, Input, Output, BaseIn, BaseOut, Status) :-
     nth0(IP, MEMIN, OpRaw), parse_opcode(OpRaw, Op),
-    (Op = (halt), MEMIN = MEMOUT, Status = s, NewIP = IP, BaseIn = BaseOut
+    (Op = (halt, _), MEMIN = MEMOUT, Status = s, NewIP = IP, BaseIn = BaseOut
     ;
     Op = (return, [M | _]), plus(IP, 2, NewIP), plus(IP, 1, ArgPos),
     get_arg(ArgPos, MEMIN, MEMOUT, M, BaseIn, Output), Status = o,
@@ -104,11 +110,17 @@ step_program(IP, MEMIN, MEMOUT, NewIP, Input, Output, BaseIn, BaseOut, Status) :
 step_program_no_base(IP, MEMIN, MEMOUT, NewIP, Input, Output, Status) :-
     step_program(IP, MEMIN, MEMOUT, NewIP, Input, Output, _, _, Status).
 
+step_program_watch(IP, MEMIN, MEMOUT, NewIP, Input, Output,
+	     BaseIn, BaseOut, Status, (WatchFrom, Data)) :-
+    step_program(IP, MEMIN, MEMOUT, NewIP, Input, Output,
+		 BaseIn, BaseOut, Status),
+    (split(WatchFrom, MEMOUT, _, Data); Data = []).
+
 run_program_no_base(IP, MEMIN, MEMOUT, Input, Outputs) :-
-    step_program_no_base(IP, MEMIN, OP1, NIP1, Input, O1, S),
+    step_program_no_base(IP, MEMIN, OP1, NIP1, Input, O1, S, _),
     (S = s -> MEMOUT = OP1, Outputs = []
     ;
-    run_program_no_base(NIP1, OP1, MEMOUT, Input, RO),
+    run_program_no_base(NIP1, OP1, MEMOUT, Input, RO, _),
     ((S = c; S = i) -> Outputs = RO ; Outputs = [O1 | RO])).
 
 run_program((IP, MEMIN, Base), Input, (NewIP, MEMOUT, NewBase), Outputs) :-
@@ -118,13 +130,14 @@ run_program((IP, MEMIN, Base), Input, (NewIP, MEMOUT, NewBase), Outputs) :-
     run_program((IPT, MEMT, BaseT), Input, (NewIP, MEMOUT, NewBase), RestO),
     ((S = c; S = i) -> Outputs = RestO; Outputs = [OutT | RestO])).
 
-run_program_nsteps(I, _, I, _, 0).
+run_program_nsteps(I, _, I, _, 0, _).
 run_program_nsteps((IP, MEMIN, Base), Input,
-		   (NewIP, MEMOUT, NewBase), Outputs, N) :-
-    N >= 0, plus(Nm, 1, N),
-    step_program(IP, MEMIN, MEMT, IPT, Input, OutT, Base, BaseT, S),
-    (S = s -> MEMOUT = MEMT, Outputs = []
+		   (NewIP, MEMOUT, NewBase), Outputs, N, (WatchFrom, Data, BaseData)) :-
+    N >= 0, plus(Nm, 1, N), 
+    step_program_watch(IP, MEMIN, MEMT, IPT, Input, OutT, Base, BaseT, S, (WatchFrom, DataHead)),
+    (S = s -> MEMOUT = MEMT, Outputs = [], Data = [DataHead], BaseData = [Base]
     ;
     run_program_nsteps((IPT, MEMT, BaseT), Input,
-		       (NewIP, MEMOUT, NewBase), RestO, Nm),
+		       (NewIP, MEMOUT, NewBase), RestO, Nm, (WatchFrom, DataRest, BDRest)),
+    Data = [DataHead | DataRest], BaseData = [BaseT | BDRest],
     ((S = c; S = i) -> Outputs = RestO; Outputs = [OutT | RestO])).

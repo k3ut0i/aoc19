@@ -104,5 +104,25 @@ After wrangling quite a bit of quick and dirty code, the module intcode is ready
 
 #+RESULTS:
 : 2351176124
-*** Part 2
+*** TODO Part 2 - INCOMPLETE
 The program is looping a lot, likely doing some inefficient computation. I need to figure out what it is trying to do and then compute it efficiently for my answer. For now it seems to be looping around 920-960 addresses after 20-30 steps. Instead of getting dirty and parsing the code manually, I am taking the long way home by writing a parser that will make things more clear. Let us see how this goes.
+Got parsing done. Need to analyze later(It is quite cumbersome).
+#+BEGIN_SRC prolog :exports both
+  :- consult("src/intcode.pl").
+  :- get_program("inputs/day9", Prog),
+     intcode:run_program_nsteps((0, Prog, 0), 2, (NewIP, NProg, NB),
+				O, 1000, (1000, X, BD)).
+#+END_SRC
+
+#+RESULTS:
+** Day 10
+I got a bad solution working for all the examples. The time complexity is probably n^3 the size of the initial map. Small examples take less than a second but, final example takes 138 seconds.
+#+BEGIN_SRC prolog :exports both
+  :- consult("src/day10.pl").
+  :- read_map("inputs/day10test3", M, S), find_asteroids_views(M, S, A),
+     find_max_asteroid(A, Ans), print(Ans).
+#+END_SRC
+
+#+RESULTS:
+| (3 | 6) | 41 |
+The actual input will probably run for hours, I need to find a more efficient algorithm.
