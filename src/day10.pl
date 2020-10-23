@@ -6,7 +6,11 @@
 %% TODO: X is Row index??
 lookup((X, Y), Map, Elem) :-
     nth0(X, Map, Row), nth0(Y, Row, Elem).
-
+store((X, Y), Elem, Map, NMap) :-
+    nth0(X, Map, Row), nth0(Y, Row, _, Rest),
+    nth0(Y, NRow, Elem, Rest),
+    nth0(X, Map, _, RestRows),
+    nth0(X, NMap, NRow, RestRows).
 pos_code('#', asteroid).
 pos_code('.', empty).
 read_map_line(Line, Row) :-
@@ -87,8 +91,82 @@ find_max_([(P, N) | Xs], A, (P1, N1)) :-
     N < N1 -> find_max_(Xs, A, (P1, N1));
     find_max_(Xs, A, (P, N)).
 
-%lines_through_point(Lines, (PX, PY), (W, H)) :-   between(0, W, X), between(0, H, Y).
-    
-    
-%write_map
+part1(File, A) :-
+    read_map(File, Map, Size), find_asteroids_views(Map, Size, AsteroidV),
+    find_max_asteroid(AsteroidV, A).
 
+%% split the LINES through POS at POS into SL.
+split_lines(Pos, Lines, SL) :- split_lines_(Pos, Lines, SL, []).
+split_lines_(_, [], SL, SL).
+split_lines_(Pos, [L | Ls], SL, Acc) :-
+    append(Prefix, [Pos | Suffix], L), reverse(Prefix, RP),
+    P = [Pos | RP], S = [Pos | Suffix],
+    (Prefix = [] -> split_lines_(Pos, Ls, SL, [S | Acc]);
+
+     (Suffix = [] -> split_lines_(Pos, Ls, SL, [P | Acc]);
+      split_lines_(Pos, Ls, SL, [P | [S | Acc]]))).
+
+%% clock angle-
+quadrant(Xsign, Ysign, Q) :-
+    Xsign < 0, Ysign < 0, Q = top_left;
+    Xsign < 0, Ysign > 0, Q = top_right;
+    Xsign > 0, Ysign > 0, Q = bottom_right;
+    Xsign > 0, Ysign < 0, Q = bottom_left;
+    Xsign = 0, Ysign > 0, Q = right;
+    Xsign = 0, Ysign < 0, Q = left;
+    Xsign > 0, Ysign = 0, Q = bottom;
+    Xsign < 0, Ysign = 0, Q = top.
+
+angle((X1, Y1), (X2, Y2), A) :-
+    XD is X2 - X1, YD is Y2 - Y1, quadrant(XD, YD, Q),
+    (Q = top, A is 0;
+     Q = top_right, A is -atan(YD/XD);
+     Q = right, A is pi/2;
+     Q = bottom_right, A is pi - atan(YD/XD);
+     Q = bottom, A is pi;
+     Q = bottom_left, A is pi - atan(YD/XD);
+     Q = left, A is 3*pi/2;
+     Q = top_left, A is 2*pi - atan(YD/XD)).
+
+angle_of_line([P1 | [P2 | _]], A) :- angle(P1, P2, A).
+compare_lines(D, L1, L2) :-
+    angle_of_line(L1, A1), angle_of_line(L2, A2),
+    compare(D, A1, A2).
+
+%% Fails when asteroid cannot be found.    
+asteroid([_InitP | Line], Map, A) :-
+    member(A, Line), lookup(A, Map, asteroid).
+
+step_laser(L, WorldIn, WorldOut, BombLog) :-
+    asteroid(L, WorldIn, A) ->
+	BombLog = A, store(A, empty, WorldIn, WorldOut);
+    BombLog = empty, WorldIn = WorldOut.
+    
+rotate_laser(LaserPos, Size, WorldIn, WorldOut, BombLog) :-
+    lines_through(LaserPos, Size, Lines),
+    split_lines(LaserPos, Lines, SplitLines),
+    predsort(compare_lines, SplitLines, SL),
+    rotate_laser_(SL, WorldIn, WorldOut, BombLog).
+
+%% Bad recursion.
+rotate_laser_([], W, W, []).
+rotate_laser_([L | Ls], WorldIn, WorldOut, BombLog) :-
+    step_laser(L, WorldIn, WT, BT),
+    rotate_laser_(Ls, WT, WorldOut, BR),
+    BombLog = [BT | BR].
+
+bombed_asteroids([], As, Acc) :- reverse(As, Acc).
+bombed_asteroids([B | Bs], As, Acc) :-
+    B = empty -> bombed_asteroids(Bs, As, Acc);
+    bombed_asteroids(Bs, As, [B | Acc]).
+
+nth_asteroid_bombed(1, [A | _], A).
+nth_asteroid_bombed(N, [L | Ls], A) :-
+    L = empty -> nth_asteroid_bombed(N, Ls, A);
+    N > 1, plus(N1, 1, N), nth_asteroid_bombed(N1, Ls, A).
+
+part2(File, Pos, A) :-
+    read_map(File, Map, Size),
+    rotate_laser(Pos, Size, Map, _, BombLog),
+    bombed_asteroids(BombLog, ALog, []),
+    nth1(200, ALog, A).

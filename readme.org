@@ -125,4 +125,17 @@ I got a bad solution working for all the examples. The time complexity is probab
 
 #+RESULTS:
 | (3 | 6) | 41 |
-The actual input will probably run for hours, I need to find a more efficient algorithm.
+The actual input will probably run for hours(done, it did run around 1hr22min). I need to find a more efficient algorithm(or implementation, my code is quite dirty).
+#+BEGIN_EXAMPLE
+4,377,984,637 inferences, 4928.755 CPU in 4963.529 seconds (99% CPU, 888254 Lips)
+Ans = ((29, 26), 303) 
+#+END_EXAMPLE
+***  Part 2 lasers
+Took a while to sort laser rays.
+#+BEGIN_SRC prolog :exports both
+  :- consult("src/day10.pl").
+  :- part2("inputs/day10", (29, 26), (X, Y)), A is 100*Y + X, print(A).
+#+END_SRC
+
+ #+RESULTS:
+ : 408
