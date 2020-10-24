@@ -3,7 +3,8 @@
 		    step_program_no_base/7,
 		    run_program_no_base/5,
 		    get_program/2,
-		    run_program/4]).
+		    run_program/4,
+		    run_program_async/5]).
 
 get_program(File, Prog) :-
     open(File, read, S), read_line_to_string(S, ProgStr),
@@ -42,11 +43,11 @@ parse_program_(Codes, Insts, Acc) :-
     split(L, Codes, [_ | Params], Rest),
     (Op = halt -> reverse(Insts, [(Op, Params, Ms) | Acc]);
      parse_program_(Rest, Insts, [(Op, Params, Ms) | Acc])).
-    
+
 
 parse_program(Codes, Insts) :-
     parse_program_(Codes, Insts, []).
-    
+
 pad_last(N, Elem, List1, List2) :- length(List1, M), plus(M, Extra, N),
 				   pad_last_(Extra, Elem, List1, List2, []).
 pad_last_(0, _, [], L2, Acc) :- reverse(L2, Acc).
@@ -56,7 +57,7 @@ pad_last_(N, E, [L | Ls], L2, Acc) :- pad_last_(N, E, Ls, L2, [L | Acc]).
 getElem(Idx, Val, InProg, OutProg) :-
     nth0(Idx, InProg, Val), InProg = OutProg; %% fails if Idx is larger than InProg length.
     length(InProg, L), L =< Idx, Val = 0, plus(Idx, 1, NewL), pad_last(NewL, 0, InProg, OutProg).
-    
+
 storeElem(Idx, Val, InProg, OutProg) :-
     nth0(Idx, InProg, _, X), nth0(Idx, OutProg, Val, X);
     length(InProg, L), L =< Idx, plus(Idx, 1, NewL), pad_last(NewL, 0, InProg, Padded),
@@ -111,7 +112,7 @@ step_program_no_base(IP, MEMIN, MEMOUT, NewIP, Input, Output, Status) :-
     step_program(IP, MEMIN, MEMOUT, NewIP, Input, Output, _, _, Status).
 
 step_program_watch(IP, MEMIN, MEMOUT, NewIP, Input, Output,
-	     BaseIn, BaseOut, Status, (WatchFrom, Data)) :-
+		   BaseIn, BaseOut, Status, (WatchFrom, Data)) :-
     step_program(IP, MEMIN, MEMOUT, NewIP, Input, Output,
 		 BaseIn, BaseOut, Status),
     (split(WatchFrom, MEMOUT, _, Data); Data = []).
@@ -141,3 +142,23 @@ run_program_nsteps((IP, MEMIN, Base), Input,
 		       (NewIP, MEMOUT, NewBase), RestO, Nm, (WatchFrom, DataRest, BDRest)),
     Data = [DataHead | DataRest], BaseData = [BaseT | BDRest],
     ((S = c; S = i) -> Outputs = RestO; Outputs = [OutT | RestO])).
+
+run_program_no_input((IP, MEMIN, Base), (NewIP, MEMOUT, NewBase), Outputs) :-
+    nth0(IP, MEMIN, OpRaw), parse_opcode(OpRaw, Op),
+    (Op = (store, _) -> IP = NewIP, MEMIN = MEMOUT, Base = NewBase, Outputs = [];
+     step_program(IP, MEMIN, MEMT, IPT, _, OutT, Base, BaseT, S),
+     (S = s -> MEMOUT = MEMT, BaseT = NewBase, IPT = NewIP, Outputs = [];
+      run_program_no_input((IPT, MEMT, BaseT), (NewIP, MEMOUT, NewBase), RestO),
+      (S = c -> Outputs = RestO; Outputs = [OutT | RestO]))).
+
+% Consumes one input.
+run_program_async((IP, MEMIN, Base), Input, (NewIP, MEMOUT, NewBase), Outputs, S) :-
+    step_program(IP, MEMIN, MEMT, IPT, Input, OutT, Base, BaseT, S),
+    (S = s, MEMOUT = MEMT, Outputs = []
+    ;
+    S = i, run_program_no_input((IPT, MEMT, BaseT),
+				(NewIP, MEMOUT, NewBase), Outputs)
+    ;
+    (S = c; S = o), run_program_async((IPT, MEMT, BaseT), Input,
+				      (NewIP, MEMOUT, NewBase), RestO, S),
+    (S = c -> Outputs = RestO; Outputs = [OutT | RestO])).
