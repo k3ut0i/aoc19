@@ -150,4 +150,27 @@ First part is a simple straight forward solution. I think my use foldl and map_a
 
 #+RESULTS:
 : 9876
-Second part needs more thought.
+Second part needs more thought. Got it, I need to decouple the axis and solve each one separately. The period is the lcm of the separate periods.
+#+begin_src prolog :exports both
+  :- consult("src/day12.pl").
+  :- test_state(S), period(N, S), print(N), write(,).
+  :- test_state1(S), period(N, S), print(N), nl.
+#+end_src
+
+#+RESULTS:
+| 2772 | 4686774924 |
+My solution works for both the examples but is still blowing the stack for the main problem. I think the last call optimization is not working for axis_period. Why is this happening?
+Rewrite the 2nd part in c.
+#+begin_src sh
+  ./src/day12
+#+end_src
+
+#+RESULTS:
+: 286332 167624 102356
+Least common multiple of the separate periods is the period.
+#+begin_src emacs-lisp
+  (lcm 286332 167624 102356)
+#+end_src
+
+#+RESULTS:
+: 307043147758488
