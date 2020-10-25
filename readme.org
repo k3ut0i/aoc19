@@ -139,3 +139,15 @@ Took a while to sort laser rays.
 
  #+RESULTS:
  : 408
+** Day 11
+Abandoning after no correct answer. My robot painter is looping around, so I assumed it is going in a closed loop and so after quite a bit of time I counted the positions it has been in. But this is not the correct answer. Am I missing edge cases? I will be abandoning all Odd-numbered days since all of them seem to have /intcode/ dependency. Prolog seems to be a good match for /intcode/ but my implementation is pretty frustrating to work with, may be I'll rewrite it some time.
+** Day 12
+First part is a simple straight forward solution. I think my use foldl and map_assoc is good.
+#+begin_src prolog :exports both
+  :- consult("src/day12.pl").
+  :- part1(E), print(E), nl.
+#+end_src
+
+#+RESULTS:
+: 9876
+Second part needs more thought.
