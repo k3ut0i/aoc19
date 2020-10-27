@@ -12,7 +12,6 @@ parse_reaction(Str, R) :-
     maplist(parse_compound, Is, I1),
     parse_compound(O, (C, N)), R = C-(N, I1).
 
-
 read_reactions(File, Rs) :-
     read_all_lines(File, Lines),
     maplist(parse_reaction, Lines, RL),
@@ -47,7 +46,6 @@ part1(File, N) :-
     read_reactions(File, Data), empty_assoc(E),
     list_to_assoc(['FUEL'-1], Start), solve((Start, E), (X, _), Data),
     get_assoc('ORE', X, N).
-
 
 get_n_fuel(File, N, O) :-
     read_reactions(File, Data), empty_assoc(E),
