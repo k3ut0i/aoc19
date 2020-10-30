@@ -205,3 +205,11 @@ Out of global-stack error. I seem to be unable to utilize last call optimization
 
 #+RESULTS:
 : 24176176 73745418 52432133
+
+#+begin_src prolog :exports both
+  :- consult("src/day16opt.pl").
+  :- part1("inputs/day16", A), digits_to_number(A, B), print(B), nl.
+#+end_src
+
+#+RESULTS:
+| 15841929 |
