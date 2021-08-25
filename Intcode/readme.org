@@ -1,0 +1,9 @@
+* Intcode Implementation in raku
+It was cumbersome working with Intcode in prolog. So I am going to try only the Intcode problems in raku.
+
+** Highlights
+*** DONE Day 02
+    CLOSED: [2021-08-25 Wed 21:59]
+  - Basics of raku class oop.
+  - Enums and Hashes
+  - Testing and MAIN

@@ -1,4 +1,6 @@
-/.~/
+.~/
 /inputs/
+/Intcode/inputs
 /src/.~/
 /src/day12
+.precomp
