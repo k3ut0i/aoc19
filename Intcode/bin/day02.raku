@@ -5,7 +5,7 @@ use Intcode;
 sub system-fun(Int @prog, Int $noun, Int $verb --> Int) {
     @prog[1] = $noun; @prog[2] = $verb;
     my $s = SystemI.new(:mem(@prog));
-    return run-full($s).get_mem(0);
+    return run-full($s).get-mem(0);
 }
 sub MAIN($filename) {
     my $str = $filename.IO.slurp.chomp;

@@ -7,3 +7,9 @@ It was cumbersome working with Intcode in prolog. So I am going to try only the 
   - Basics of raku class oop.
   - Enums and Hashes
   - Testing and MAIN
+*** DONE Day 05
+    CLOSED: [2021-08-27 Fri 12:45]
+  - Optional arguments & definedness
+  - Map
+  - repeat/while
+  - is-deeply
