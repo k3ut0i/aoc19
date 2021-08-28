@@ -13,3 +13,9 @@ It was cumbersome working with Intcode in prolog. So I am going to try only the 
   - Map
   - repeat/while
   - is-deeply
+*** DONE Day 07
+    CLOSED: [2021-08-28 Sat 18:54]
+  - last LABEL
+  - ^n and a..b ranges
+  - .permutations.map.reduce combo
+
