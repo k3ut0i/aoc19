@@ -7,18 +7,19 @@ sub MAIN($filename) {
     my $s = SystemI.new(:mem(@vals));
     $s.input = 1;
 
-    repeat {
-        run-until-output($s);
-    } while $s.output == 0;
-
+    my $output;
+    while (run-until-event($s) == Output) {
+        $output = $s.output.shift;
+        last unless $output == 0;
+    }
     if $s.step == Hlt {
-        say $s.output;
+        say $output;
     } else {
-        die "Diagnostic failed after: " ~ $s.get-ip;
+        die "Diagnostic failed after: " ~ $s.get-ip ~ " " ~ $s.state;
     }
 
     # part 2
     my $s2 = SystemI.new(:mem(@vals));
     $s2.input = 5; # diagnostic ID
-    say run-full($s2).output;
+    say run-full($s2).output.first;
 }

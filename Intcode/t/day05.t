@@ -14,8 +14,12 @@ is-deeply(parse-opcode(99),
    Map.new('type' => Hlt, 'args' => [Link, Link, Link]),
    "opcode parsing for parameter modes: 99");
 
-is(run-until-output(SystemI.new(:mem([3,0,4,0,99])), 13).output, 13,
-   "run 3,0,4,0,99 until output");
+subtest {
+    my $s = SystemI.new(:mem([3,0,4,0,99]));
+    my $e = run-until-event($s, 13);
+    is($e, Output, "Event type");
+    is($s.output.shift, 13, "Output value");
+}, "run 3,0,4,0,99 until output";
 
 subtest {
     my $s = SystemI.new(:mem([3,0,4,0,99]));
@@ -28,9 +32,15 @@ subtest {
                 20,1006,20,31, 1106,0,36,98,0,0,1002,21,
                 125,20,4,20,1105,1,46,104, 999,1105,1,46,
                 1101,1000,1,20,4,20,1105,1,46,98,99];
-    is(run-until-output(SystemI.new(:mem(@prog)), 7).output, 999, "lt");
-    is(run-until-output(SystemI.new(:mem(@prog)), 8).output, 1000, "eq");
-    is(run-until-output(SystemI.new(:mem(@prog)), 9).output, 1001, "gt");
+    my $s1 = SystemI.new(:mem(@prog));
+    my $s2 = SystemI.new(:mem(@prog));
+    my $s3 = SystemI.new(:mem(@prog));
+    is(run-until-event($s1, 7), Output, "lt Event type");
+    is(run-until-event($s2, 8), Output, "eq Event type");
+    is(run-until-event($s3, 9), Output, "gt Event type");
+    is($s1.output.shift, 999, "lt output");
+    is($s2.output.shift, 1000, "eq output");
+    is($s3.output.shift, 1001, "gt output");
 }, "given example prog: cmp w.r.t 8";
 
 done-testing;

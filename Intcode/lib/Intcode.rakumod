@@ -34,15 +34,11 @@ my constant %ops = Add => &infix:<+>,
                    Lt => &lt,
                    Eq => &eq;
 
-enum SystemState is export <Running Halted>;
+enum SystemState is export <Running InputRequired InputConsumed OutputGenerated Halted>;
 
 enum PointerType is export(:testing) <Direct Link>;
-class Pointer {
-    has Int $.val;
-    has PointerType $.type;
-}
 
-sub parse-opcode(Int $o --> Map) is export(:testing) { 
+sub parse-opcode(Int $o --> Map) is export(:testing) {
     my Int @digits = $o.polymod(100, 10, 10); # assuming max args: 3
     my OpType $op = %opcodes{@digits.shift};
     unless $op.defined { die "Could not parse: " ~ $o};
@@ -54,9 +50,9 @@ sub parse-opcode(Int $o --> Map) is export(:testing) {
 class SystemI is export {
     has Int @!mem;
     has Int $!ip = 0; # always a direct pointer
-     # should input and output have not-available states?
-    has Int $.input is rw = Int; # Indefinite is unavailable for now
-    has Int $.output is rw = Int;
+
+    has Int @.input; #both are queues
+    has Int @.output;
 
     has SystemState $.state is rw = Running;
     has Bool $.trace is rw = False;
@@ -86,11 +82,20 @@ class SystemI is export {
         given $op-type {
             when Hlt { $.state = Halted;}
             when StoreIn {
-                my $store-add = @!mem[$!ip+1];
-                self!set-mem($store-add, $.input);
+                if @.input { # input queue has elements
+                    my $store-add = @!mem[$!ip+1];
+                    my $val = @.input.shift;
+                    self!set-mem($store-add, $val);
+                    $.state = InputConsumed;
+                } else { # input queue is empty
+                    $.state = InputRequired;
+                    return InputRequired; # do not advance in @.input has no elements
+                }
             }
             when WriteOut {
-                $.output = self!get-arg(@!mem[$!ip+1], @arg-types[0]);
+                my $val = self!get-arg(@!mem[$!ip+1], @arg-types[0]);
+                @.output.push($val);
+                $.state = OutputGenerated;
             }
             when Add | Mul | Lt | Eq {
                 my $in_v1 = self!get-arg(@!mem[$!ip+1], @arg-types[0]);
@@ -98,8 +103,10 @@ class SystemI is export {
                 my $out_p = @!mem[$!ip+3];
                 self!eval_set_bin(%ops{$op-type},
                                   $in_v1, $in_v2, $out_p);
+                $.state = Running;
             }
             when JiT | JiF {
+                $.state = Running;
                 my $req = ($op-type == JiT) ?? (-> $a { $a != 0}) !! (-> $a { $a == 0});
                 my $arg1 = self!get-arg(@!mem[$!ip+1], @arg-types[0]);
                 my $arg2 = self!get-arg(@!mem[$!ip+2], @arg-types[1]);
@@ -110,22 +117,35 @@ class SystemI is export {
             }
         }
         # does not default when JiT, JiF fire
+        # OR when @.input needs elements
         $!ip = $!ip + %opargs{$op-type} + 1;
         return $op-type;
     }
 }
 
 sub run-full(SystemI $s) is export {
-    until ($s.state == Halted) {
+    until ($s.state == Halted | InputRequired) {
         $s.step();
     }
-    return $s;
+    if ($s.state == Halted) {
+        return $s;
+    } else {
+        die "Input required: could not complete full run";
+    }
 }
 
-sub run-until-output(SystemI $s, Int $input?) is export {
-    if $input.defined {$s.input = $input};
-    until ($s.state == Halted) {
-        last if $s.step() == WriteOut;
+enum SystemEvent is export <Exit Input Output>;
+
+sub run-until-event(SystemI $s, Int $input? --> SystemEvent) is export {
+    if $input.defined {$s.input.push($input)};
+
+    repeat {
+        $s.step();
+    } while ($s.state == Running | InputConsumed);
+
+    given $s.state {
+        when Halted { return Exit }
+        when InputRequired {return Input}
+        when OutputGenerated {return Output}
     }
-    return $s;
 }
