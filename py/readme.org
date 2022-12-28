@@ -1,0 +1,15 @@
+* Python
+Learning Python language.
+
+** DONE Day 01
+1. How ~__main__~, ~sys.argv~ work.
+2. function definitions.
+3. doctest examples.
+4. ~for~, ~while~ loops and also assignment expressions.
+5. ~map~ function and ~lambda~.
+
+
+** DONE Day 02
+1. ~Enum~ enumerations
+2. Classes, ~__init__~, ~__str__~.
+3. Arrays
