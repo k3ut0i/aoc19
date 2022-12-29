@@ -16,10 +16,17 @@ Learning Python language.
 
 ** DONE Day 03
 I found my self solving this similar to how I did it in Prolog.
-1. class methods
-2. ~min~ function using ~key=~
-3. lots of ~lambda~s
+1. class methods.
+2. ~min~ function using ~key=~.
+3. lots of ~lambda~.
 
 ** DONE Day 04
 1. Conditional expressions. ~C if Test else Default~.
 
+** DONE Day 05
+1. ~unittest~ for testing. At one point, I wrote ~ip = ...~ instead of ~self.ip = ..~ and my program went into an infinite loop. I needed to know which instructions are working and which are not. This is simple enough to use.
+2. I shifted all ~intcode~ into a separate file.
+3. Dicts for the first time.
+4. Lots of classes.
+
+** TODO Day 06
