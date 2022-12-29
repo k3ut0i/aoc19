@@ -13,3 +13,13 @@ Learning Python language.
 1. ~Enum~ enumerations
 2. Classes, ~__init__~, ~__str__~.
 3. Arrays
+
+** DONE Day 03
+I found my self solving this similar to how I did it in Prolog.
+1. class methods
+2. ~min~ function using ~key=~
+3. lots of ~lambda~s
+
+** DONE Day 04
+1. Conditional expressions. ~C if Test else Default~.
+
