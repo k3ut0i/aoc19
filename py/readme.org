@@ -29,4 +29,9 @@ I found my self solving this similar to how I did it in Prolog.
 3. Dicts for the first time.
 4. Lots of classes.
 
-** TODO Day 06
+** DONE Day 06
+1. Breadth first search for the first part.
+2. Lots of dicts
+
+** Day 07
+
