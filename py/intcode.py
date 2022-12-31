@@ -49,7 +49,7 @@ def parse_op(n):
         digits.append(num % 10)
         num = num // 10
     return (Opcode(opnum), list(map(lambda x: Addressing(x), digits)))
-    
+
 class Memory():
     def __init__(self, csvline):
         self.mem = array.array('i', map(int, csvline.split(",")))
@@ -81,6 +81,7 @@ class Intcode():
         self.ip = 0
         self.input = None
         self.output = None
+
     def step(self):
         (oc, modes) = parse_op(self.memory.get_value(self.ip, Addressing.IMMEDIATE))
         match oc:
@@ -113,6 +114,21 @@ class Intcode():
         while (status := self.step()) != Opcode.HALT:
             pass
 
+    def run_async(self):
+        "yields for before input and after output operations"
+        status = None
+        while (status != Opcode.HALT):
+            (oc, g) = parse_op(self.memory.get_value(self.ip, Addressing.IMMEDIATE))
+            if oc == Opcode.INPUT:
+                self.input = yield oc
+                status = self.step()
+            elif oc == Opcode.OUTPUT:
+                status = self.step()
+                yield (oc, self.output)
+            else:
+                status = self.step()
+        return status
+
     def __str__(self):
         return "Intcode [IP: " + str(self.ip) + " ," + str(self.memory) + " ]"
 
@@ -125,4 +141,3 @@ def intcode_run_with_input(progstring, input_value):
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
-    

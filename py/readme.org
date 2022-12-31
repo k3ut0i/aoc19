@@ -33,5 +33,6 @@ I found my self solving this similar to how I did it in Prolog.
 1. Breadth first search for the first part.
 2. Lots of dicts
 
-** Day 07
-
+** DONE Day 07
+1. Co-routines: finally a good situation to use and understand them.
+2. Partial pattern matching, similar to Haskell.

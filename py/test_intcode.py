@@ -1,5 +1,5 @@
 import unittest
-from intcode import Intcode, intcode_run_with_input
+from intcode import Intcode, intcode_run_with_input, Opcode
 from array import array
 
 irwi = intcode_run_with_input
@@ -43,5 +43,21 @@ class TestIntcodeExamplesDay05(unittest.TestCase):
         self.assertEqual(i1.output, 0)
         self.assertEqual(i2.output, 1)
 
+class TestIntcodeRunAsync(unittest.TestCase):
+    def equal8_io(self, inp, out):
+        ps = '3,9,8,9,10,9,4,9,99,-1,8' # example prog from day05
+        i = Intcode(ps)
+        j = i.run_async()
+        self.assertEqual(next(j), Opcode.INPUT)
+        self.assertEqual(j.send(inp), (Opcode.OUTPUT, out))
+        try:
+            next(j)
+        except StopIteration as si:
+            self.assertEqual(si.args, (Opcode.HALT,))
+        
+    def test_equal8_io(self):
+        self.equal8_io(8, 1)
+        self.equal8_io(-1000, 0)
+            
 if __name__ == '__main__':
     unittest.main()
