@@ -36,3 +36,6 @@ I found my self solving this similar to how I did it in Prolog.
 ** DONE Day 07
 1. Co-routines: finally a good situation to use and understand them.
 2. Partial pattern matching, similar to Haskell.
+
+** DONE Day 08
+Row major access of 3 dimensional array. Nothing new.

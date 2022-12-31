@@ -6,3 +6,4 @@
 .precomp
 /input/
 /py/__pycache__/
+/py/input
