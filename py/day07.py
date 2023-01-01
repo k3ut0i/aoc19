@@ -59,7 +59,6 @@ def find_max_signal_loop(prog_string):
     ts = ThrusterSystem(prog_string)
     all_phases = permutations([5, 6, 7, 8, 9])
     mphase = max(all_phases, key=lambda p: ts.set_phases(p).run_in_loop(0))
-    print(mphase)
     return ts.set_phases(mphase).run_in_loop(0)
 
 def main(filename):

@@ -10,6 +10,7 @@ class Opcode(Enum):
     JIF = 6
     LT = 7
     EQ = 8
+    REL_BASE = 9
     HALT = 99
 
 oplen = {
@@ -21,6 +22,7 @@ oplen = {
     Opcode.JIF: 3,
     Opcode.LT: 4,
     Opcode.EQ: 4,
+    Opcode.REL_BASE: 2,
     Opcode.HALT: 1
     }
 
@@ -40,6 +42,7 @@ def binary_op(oc, a, b):
 class Addressing(Enum):
     POSITIONAL = 0
     IMMEDIATE = 1
+    RELATIVE = 2
 
 def parse_op(n):
     digits = []
@@ -52,17 +55,39 @@ def parse_op(n):
 
 class Memory():
     def __init__(self, csvline):
-        self.mem = array.array('i', map(int, csvline.split(",")))
+        self.mem = array.array('q', map(int, csvline.split(",")))
+        self.relative_base = 0
+
+    def extend_until(self, address):
+        if address >= len(self.mem):
+            self.mem.extend([0 for i in range(address+1-len(self.mem))])
+
+    def get_value_im(self, address):
+        self.extend_until(address)
+        return self.mem[address]
 
     def get_value(self, address, mode):
+        address_actual = None
         match mode:
             case Addressing.IMMEDIATE:
-                return self.mem[address]
+                address_actual = address
             case Addressing.POSITIONAL:
-                return self.mem[self.mem[address]]
+                address_actual =  self.get_value_im(address)
+            case Addressing.RELATIVE:
+                address_actual = self.relative_base + self.get_value_im(address)
+        return self.get_value_im(address_actual)
 
-    def set_value(self, address, value):
-        self.mem[address] = value
+    def set_value(self, address, mode, value):
+        address_actual = None
+        match mode:
+            case Addressing.POSITIONAL:
+                address_actual = address
+            case Addressing.RELATIVE:
+                address_actual = self.relative_base + address
+            case Addressing.IMMEDIATE:
+                raise IntcodeError("Memory cannot be set at immediate value")
+        self.extend_until(address_actual)
+        self.mem[address_actual] = value
 
     def __str__(self):
         return f"mem:<{self.mem}>"
@@ -73,7 +98,7 @@ class Intcode():
     >>> i = Intcode('1, 0, 0, 0, 99')
     >>> i.run()
     >>> print(i.memory)
-    mem:<array('i', [2, 0, 0, 0, 99])>
+    mem:<array('q', [2, 0, 0, 0, 99])>
     """
 
     def __init__(self, programstring):
@@ -89,11 +114,11 @@ class Intcode():
                 arg1 = self.memory.get_value(self.ip+1, modes[0])
                 arg2 = self.memory.get_value(self.ip+2, modes[1])
                 arg3 = self.memory.get_value(self.ip+3, Addressing.IMMEDIATE)
-                self.memory.set_value(arg3, binary_op(oc, arg1, arg2))
+                self.memory.set_value(arg3, modes[2], binary_op(oc, arg1, arg2))
                 self.ip += oplen[oc]
             case Opcode.INPUT:
                 arg = self.memory.get_value(self.ip+1, Addressing.IMMEDIATE)
-                self.memory.set_value(arg, self.input)
+                self.memory.set_value(arg, modes[0], self.input)
                 self.ip += oplen[oc]
             case Opcode.OUTPUT:
                 self.output = self.memory.get_value(self.ip+1, modes[0])
@@ -105,6 +130,10 @@ class Intcode():
                     self.ip = arg2
                 else:
                     self.ip += oplen[oc]
+            case Opcode.REL_BASE:
+                base_adjust = self.memory.get_value(self.ip+1, modes[0])
+                self.memory.relative_base += base_adjust
+                self.ip += oplen[oc]
             case Opcode.HALT:
                 self.ip += oplen[oc]
         # print(self.ip, "\n")

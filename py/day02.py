@@ -13,14 +13,14 @@ def main(filename) -> int:
     return 0
 
 def part1(ic) -> int:
-    ic.memory.set_value(1, 12)
-    ic.memory.set_value(2, 2)
+    ic.memory.set_value(1, Addressing.POSITIONAL, 12)
+    ic.memory.set_value(2, Addressing.POSITIONAL, 2)
     ic.run()
     return ic.memory.get_value(0, Addressing.IMMEDIATE)
 
 def run_with(noun, verb, ic) -> int:
-    ic.memory.set_value(1, noun)
-    ic.memory.set_value(2, verb)
+    ic.memory.set_value(1, Addressing.POSITIONAL, noun)
+    ic.memory.set_value(2, Addressing.POSITIONAL, verb)
     ic.run()
     return ic.memory.get_value(0, Addressing.IMMEDIATE)
 

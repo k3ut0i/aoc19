@@ -39,3 +39,8 @@ I found my self solving this similar to how I did it in Prolog.
 
 ** DONE Day 08
 Row major access of 3 dimensional array. Nothing new.
+
+** DONE Day 09
+My modular design of ~intcode~ is comming in handy now. Most of current changes happened in memory module and the rest is mostly left alone, so debugging and changing the Memory class became very easy.
+1. Used a subTest in unittest.
+2. array.extend, and array('q') for 8 byte signed long long ints.
