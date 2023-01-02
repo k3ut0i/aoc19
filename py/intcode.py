@@ -162,6 +162,7 @@ class Intcode():
         return "Intcode [IP: " + str(self.ip) + " ," + str(self.memory) + " ]"
 
 def intcode_run_with_input(progstring, input_value):
+    "Use this when a single input and output transactions are needed."
     i = Intcode(progstring)
     i.input = input_value
     i.run()

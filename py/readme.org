@@ -41,6 +41,14 @@ I found my self solving this similar to how I did it in Prolog.
 Row major access of 3 dimensional array. Nothing new.
 
 ** DONE Day 09
-My modular design of ~intcode~ is comming in handy now. Most of current changes happened in memory module and the rest is mostly left alone, so debugging and changing the Memory class became very easy.
+My modular design of ~intcode~ is coming in handy now. Most of current changes happened in memory module and the rest is mostly left alone, so debugging and changing the Memory class became very easy.
 1. Used a subTest in unittest.
 2. array.extend, and array('q') for 8 byte signed long long ints.
+
+** DONE Day 10
+Seems like brute force is the only way. Input is 36x36, so we need 36^4 > 1million lines. Since all points are integers, we can check the nearest point on each line using arithmetic, instead of brute forcing all points. What a cumbersome solution; isn't there any elegant way to do this? I just check my prolog solution, it was 173 lines. Let me see what python can provide.
+
+1. ~functools.partial~ useful for partial application of arguments.
+2. ~math.gcd~ was use full to find integer points on a line.
+3. ~sort~ with key for first time.
+4. My trigonometry was frustating bad. ~clock~ took a white to get right, I had to put pen on paper to get angles and co-ordinate system correct.
