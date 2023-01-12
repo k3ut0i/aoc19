@@ -52,3 +52,9 @@ Seems like brute force is the only way. Input is 36x36, so we need 36^4 > 1milli
 2. ~math.gcd~ was use full to find integer points on a line.
 3. ~sort~ with key for first time.
 4. My trigonometry was frustating bad. ~clock~ took a white to get right, I had to put pen on paper to get angles and co-ordinate system correct.
+
+** TODO Day 11
+Good problem that uses ~intcode~ and asynchronous simulation.
+1. I think my design of Robot, Grid, and World is good.
+2. I used a method within an ~Enum~ class. It looks a bit awkward. WHY?
+3. a lot of ~Enum~ s.
